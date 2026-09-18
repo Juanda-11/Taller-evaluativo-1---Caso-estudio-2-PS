@@ -1,19 +1,8 @@
-# Caso 2 — Planificación de estiba (Terminal Fluvial de Barrancabermeja)
-
-Aplicación de consola en Java (SE 17+, un único archivo `StowagePlanningApp.java`,
-sin frameworks ni librerías externas) que resuelve el caso aplicando exactamente
-tres patrones de diseño.
-
-## Cómo compilar y ejecutar
-
-```bash
-javac StowagePlanningApp.java
-java StowagePlanningApp
-```
+# Caso de estudio 2
 
 ## 1. Abstract Factory — familias por tipo de terminal
 
-**Problema que resuelve:** cada terminal (granel sólido, contenedores, líquidos)
+Problema que resuelve: cada terminal (granel sólido, contenedores, líquidos)
 define de forma *inseparable* tres productos: equipo de cargue, validador de
 estabilidad y documento de embarque. Si estos tres objetos se crearan por
 separado con `if/else`, sería fácil terminar con combinaciones inconsistentes
@@ -22,7 +11,7 @@ Factory obliga a crear siempre la familia completa y correcta, y el resto del
 programa (`printPlan`) solo conoce las interfaces `LoadingEquipment`,
 `StabilityValidator` y `ShippingDocument`, nunca las clases concretas.
 
-**Dónde está:**
+*Dónde está:*
 - Interfaces de producto: `LoadingEquipment`, `StabilityValidator`, `ShippingDocument`.
 - 9 productos concretos (3 por cada terminal): p. ej. `ConveyorBeltBT3` /
   `BulkSolidStabilityValidator` / `BulkSolidShippingDocument` para granel sólido,
@@ -34,7 +23,7 @@ programa (`printPlan`) solo conoce las interfaces `LoadingEquipment`,
 
 ## 2. Factory Method — creación de unidades de carga desde el manifiesto
 
-**Problema que resuelve:** el manifiesto llega como texto plano cuyo formato y
+Problema que resuelve: el manifiesto llega como texto plano cuyo formato y
 fórmula de peso cambian según el tipo de carga (contenedor, granel, líquido).
 En vez de un único método gigante con condicionales (el "método de 400
 líneas" que menciona el caso), se define un algoritmo plantilla único
@@ -42,7 +31,7 @@ líneas" que menciona el caso), se define un algoritmo plantilla único
 un método fábrica abstracto (`createUnit`) y nunca detiene el proceso ante una
 línea inválida: la reporta como rechazada y continúa.
 
-**Dónde está:**
+*Dónde está:*
 - Clase abstracta `ManifestRegistrar` con el método plantilla `process(List<String>)`
   (público, `final`) y el método fábrica `protected abstract CargoUnit createUnit(String)`.
 - Implementaciones concretas: `ContainerRegistrar`, `BulkRegistrar`, `LiquidRegistrar`,
@@ -55,7 +44,7 @@ línea inválida: la reporta como rechazada y continúa.
 
 ## 3. Builder — armado del Plan de Estiba
 
-**Problema que resuelve:** `StowagePlan` tiene 6 campos obligatorios y 6
+Problema que resuelve: `StowagePlan` tiene 6 campos obligatorios y 6
 opcionales; construirlo con un constructor telescópico sería ilegible y
 propenso a errores (por ejemplo, olvidar la matrícula de la barcaza). El
 Builder arma el plan paso a paso con una API fluida y concentra **toda** la
@@ -63,7 +52,7 @@ validación cruzada en un único punto (`build()`), devolviendo un objeto
 **inmutable** (sin setters, sin getters mutables sobre las listas internas
 gracias a `List.copyOf`).
 
-**Dónde está:**
+*Dónde está:*
 - Clase `StowagePlan` (inmutable, constructor privado) con su clase estática
   anidada `Builder`.
 - Campos obligatorios: `planNumber`, `departureDate`, `bargeId`, `terminalType`,
@@ -76,7 +65,7 @@ gracias a `List.copyOf`).
   - la fecha de zarpe es anterior a `LocalDate.now()`,
   - ninguna bodega tiene unidades asignadas.
 
-## Componente algorítmico (no es un patrón, pero es obligatorio)
+### Componente algorítmico (no es un patrón, pero es obligatorio)
 
 Todo vive en `StowagePlanningService`:
 - `distributeFirstFitDecreasing`: ordena las unidades por peso descendente y
@@ -89,7 +78,7 @@ Todo vive en `StowagePlanningService`:
 - `generateLoadingSequence`: secuencia numerada bodega por bodega, de mayor a
   menor peso dentro de cada bodega.
 
-## Programa de demostración (`main`)
+### Programa de demostración (`main`)
 
 1. **Contenedores:** procesa un manifiesto de 12 líneas (10 válidas + 2
    inválidas: una que no corresponde al registrador y otra con "pies" no
