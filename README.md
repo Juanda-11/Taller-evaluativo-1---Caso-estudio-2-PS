@@ -1,4 +1,7 @@
 # Caso de estudio 2
+### Como ejecutar:
+javac StowagePlanningApp.java
+java StowagePlanningApp
 
 ## 1. Abstract Factory — familias por tipo de terminal
 
